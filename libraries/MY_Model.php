@@ -82,6 +82,7 @@ class MY_Model extends CI_Model {
     
     /**
      * Magic function that passes unrecognized method calls to the database class for chaining
+     * 
      * @param string $method
      * @param array $params
      * @return void
@@ -193,8 +194,7 @@ class MY_Model extends CI_Model {
     }
     
     /**
-     * Delete a row from the database table by the
-     * ID.
+     * Delete a row from the database based on a WHERE parameters
      *
      * @param string $key
      * @param string $val
