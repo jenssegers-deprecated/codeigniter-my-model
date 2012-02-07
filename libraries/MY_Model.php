@@ -2,7 +2,7 @@
 /**
  * @name		CodeIgniter Base Model
  * @author		Jens Segers
- * @modified	Adam Jackett <http://jamierumbelow.net>
+ * @modified	Jamie Rumbelow <http://jamierumbelow.net>
  * @modified	Phil Sturgeon <http://philsturgeon.co.uk>
  * @modified	Dan Horrigan <http://dhorrigan.com>
  * @modified	Adam Jackett <http://darkhousemedia.com>
@@ -35,17 +35,22 @@ if (!defined("BASEPATH"))
 
 class MY_Model extends CI_Model {
     
-    /**
+    /*
      * Your database table, if not set the name will be guessed
      */
     protected $table = NULL;
     
-    /**
+    /*
      * The primary key name, by default set to 'id'
      */
     protected $primary_key = 'id';
     
-    /**
+    /*
+     * The database table fields, used for filtering data arrays before inserting and updating
+     */
+    protected $fields = array();
+    
+    /*
      * Callbacks, should contain an array of methods
      */
     protected $before_create = array();
@@ -57,12 +62,12 @@ class MY_Model extends CI_Model {
     protected $before_delete = array();
     protected $after_delete = array();
     
-    /**
+    /*
      * Validation, should contain validation arrays like the form validation
      */
     protected $validate = array();
     
-    /**
+    /*
      * Skip the validation
      */
     protected $skip_validation = FALSE;
@@ -73,10 +78,16 @@ class MY_Model extends CI_Model {
     public function __construct() {
         parent::__construct();
         
-        if ($this->table == NULL) {
-            $this->load->helper('inflector');
-            $class = preg_replace('/(_m|_model)?$/', '', get_class($this));
-            $this->table = plural(strtolower($class));
+        if (get_class($this) != "MY_Model") {
+            if ($this->table == NULL) {
+                $this->load->helper('inflector');
+                $class = preg_replace('#((_m|_model)$|$(m_))?#', '', strtolower(get_class($this)));
+                $this->table = plural(strtolower($class));
+            }
+        }
+        
+        if ($this->table && count($this->fields) == 0) {
+            $this->fields = $this->db->list_fields($this->table);
         }
     }
     
@@ -118,7 +129,17 @@ class MY_Model extends CI_Model {
      * @return array
      */
     public function get_all() {
-        return $this->get_many();
+        $where = & func_get_args();
+        $this->_set_where($where);
+        
+        $this->_callbacks('before_get', array($where));
+        $result = $this->db->get($this->table)->result_array();
+        
+        foreach ($result as &$row) {
+            $row = $this->_callbacks('after_get', array($row));
+        }
+        
+        return $result;
     }
     
     /**
@@ -158,6 +179,7 @@ class MY_Model extends CI_Model {
         
         if ($valid) {
             $data = $this->_callbacks('before_create', array($data));
+            $data = array_intersect_key($data, array_flip($this->fields));
             $this->db->insert($this->table, $data);
             $this->_callbacks('after_create', array($data, $this->db->insert_id()));
             
@@ -172,7 +194,7 @@ class MY_Model extends CI_Model {
      *
      * @param integer $id
      * @param array $data
-     * @return bool
+     * @return int
      */
     public function update($primary_value, $data, $skip_validation = FALSE) {
         $valid = TRUE;
@@ -184,10 +206,13 @@ class MY_Model extends CI_Model {
         }
         
         if ($valid) {
+            $data = array_intersect_key($data, array_flip($this->fields));
+            
             $result = $this->db->where($this->primary_key, $primary_value)->set($data)->update($this->table);
+            
             $this->_callbacks('after_update', array($data, $primary_value, $result));
             
-            return TRUE;
+            return $this->db->affected_rows();
         } else {
             return FALSE;
         }
@@ -205,10 +230,12 @@ class MY_Model extends CI_Model {
         $this->_set_where($where);
         
         $this->_callbacks('before_delete', array($where));
+        
         $result = $this->db->delete($this->table);
+        
         $this->_callbacks('after_delete', array($where, $result));
         
-        return $result;
+        return $this->db->affected_rows();
     }
     
     /**
@@ -293,14 +320,16 @@ class MY_Model extends CI_Model {
     /**
      * Skip the insert validation
      */
-    public function skip_validation() {
-        $this->skip_validation = TRUE;
+    public function skip_validation($bool = TRUE) {
+        $this->skip_validation = $bool;
         return $this;
     }
     
     /**
      * Run the specific callbacks, each callback taking a $data
      * variable and returning it
+     * 
+     * @TODO: use references?
      */
     private function _callbacks($name, $params = array()) {
         $data = (isset($params[0])) ? $params[0] : FALSE;
