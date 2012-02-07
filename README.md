@@ -8,6 +8,23 @@ Installation
 
 Place MY_Model.php into the application/core folder. Make sure your models extend MY_Model and you are ready to go!
 
+Usage
+-----
+
+Create a new model class with an appropriate name, that extends MY_Model. You are advised to fill in the following attributes:
+
+	class Book_model extends MY_Model {
+	
+		protected $table = "books";
+		protected $primary_key = "id";
+		protected $fields = array("id", "author", "title", "published", "created_at");
+	
+	}
+	
+ - **$table**: the name of the database table, if not set it will try to guess the table from the model's name: *Book*_model -> *books*
+ - **$primary_key**: the name of the primary key of your database, set to 'id' by default
+ - **$fields**: you table's fields, if not set 1 extra query will be performed to get these automatically. These are used to filter arrays before inserting and updating
+ 
 Methods
 -------
 
