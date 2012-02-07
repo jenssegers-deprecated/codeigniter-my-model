@@ -15,7 +15,7 @@ Methods
  - **get($key, $value)**: get the record matching these where parameters
  - **get_all()**: get all parameters
  - **get_many($key, $value)**: get the records matching these where parameters
- - **count_all_results($key, $value)**: count all records matching these where parameters
+ - **count\_all\_results($key, $value)**: count all records matching these where parameters
  - **insert($data)**: insert a new record
  - **update($id, $data)**: update a record matching this id (or other primary key)
  - **delete($id)**: delete the record matching this id (or other primary key)
