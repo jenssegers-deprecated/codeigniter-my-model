@@ -307,10 +307,9 @@ class MY_Model extends CI_Model {
         
         $result = $this->db->select(array($key, $value))->get($this->table)->result_array();
         
-        $this->_callbacks('after_get', array($key, $value, $result));
-        
         $options = array();
         foreach ($result as $row) {
+            $row = $this->_callbacks('after_get', array($row));
             $options[$row->{$key}] = $row->{$value};
         }
         
@@ -328,8 +327,6 @@ class MY_Model extends CI_Model {
     /**
      * Run the specific callbacks, each callback taking a $data
      * variable and returning it
-     * 
-     * @TODO: use references?
      */
     private function _callbacks($name, $params = array()) {
         $data = (isset($params[0])) ? $params[0] : FALSE;
