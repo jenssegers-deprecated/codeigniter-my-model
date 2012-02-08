@@ -30,7 +30,7 @@ Methods
 
  - **get($id)**: get the record matching this id (or other primary key)
  - **get($key, $value)**: get the record matching these where parameters
- - **get_all()**: get all parameters
+ - **get_all()**: get all records
  - **get_many($key, $value)**: get the records matching these where parameters
  - **count\_all\_results($key, $value)**: count all records matching these where parameters
  - **insert($data)**: insert a new record
@@ -76,7 +76,7 @@ Callbacks are functions that are activated on specific occasions that allows you
 Validation
 ----------
 
-This models provides a wrapper for CodeIgniter's form validation, it will check all declared rules before inserting or updating. To add rules, add them to the $this->validate array, like this:
+This models provides a wrapper for CodeIgniter's form validation, it will check all declared rules before inserting or updating. To add rules, add them to the `$this->validate` array, like this:
 
 	$this->validate[] = array(
 							 'field'   => 'username',
@@ -86,7 +86,7 @@ This models provides a wrapper for CodeIgniter's form validation, it will check 
 						  
 You can find more information about these rules here: http://codeigniter.com/user_guide/libraries/form_validation.html
 
-You can bypass the validation by calling skip_validation() before an insert or update.
+You can bypass the validation by calling `skip_validation()` before an insert or update.
 
 Contributors
 ------------
