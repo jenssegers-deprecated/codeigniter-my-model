@@ -73,25 +73,6 @@ class MY_Model extends CI_Model {
     protected $skip_validation = FALSE;
     
     /**
-     * Constructer, tries to guess the table name.
-     */
-    public function __construct() {
-        parent::__construct();
-        
-        if (get_class($this) != "MY_Model") {
-            if ($this->table == NULL) {
-                $this->load->helper('inflector');
-                $class = preg_replace('#((_m|_model)$|$(m_))?#', '', strtolower(get_class($this)));
-                $this->table = plural(strtolower($class));
-            }
-        }
-        
-        if ($this->table && count($this->fields) == 0) {
-            $this->fields = $this->db->list_fields($this->table);
-        }
-    }
-    
-    /**
      * Magic function that passes unrecognized method calls to the database class for chaining
      * 
      * @param string $method
@@ -117,7 +98,7 @@ class MY_Model extends CI_Model {
         $this->_set_where($where);
         
         $this->_callbacks('before_get', array($where));
-        $row = $this->db->get($this->table)->row_array();
+        $row = $this->db->get($this->_table())->row_array();
         $row = $this->_callbacks('after_get', array($row));
         
         return $row;
@@ -133,7 +114,7 @@ class MY_Model extends CI_Model {
         $this->_set_where($where);
         
         $this->_callbacks('before_get', array($where));
-        $result = $this->db->get($this->table)->result_array();
+        $result = $this->db->get($this->_table())->result_array();
         
         foreach ($result as &$row) {
             $row = $this->_callbacks('after_get', array($row));
@@ -144,22 +125,14 @@ class MY_Model extends CI_Model {
     
     /**
      * Get multiple records from the database with matching WHERE parameters
+     * Alias for get_all, created for when get_all does not sound good enough
      *
      * @param string $key
      * @param string $val
+     * @return array
      */
     public function get_many() {
-        $where = & func_get_args();
-        $this->_set_where($where);
-        
-        $this->_callbacks('before_get', array($where));
-        $result = $this->db->get($this->table)->result_array();
-        
-        foreach ($result as &$row) {
-            $row = $this->_callbacks('after_get', array($row));
-        }
-        
-        return $result;
+        return $this->get_all();
     }
     
     /**
@@ -179,8 +152,10 @@ class MY_Model extends CI_Model {
         
         if ($valid) {
             $data = $this->_callbacks('before_create', array($data));
-            $data = array_intersect_key($data, array_flip($this->fields));
-            $this->db->insert($this->table, $data);
+            
+            $data = array_intersect_key($data, array_flip($this->_fields()));
+            $this->db->insert($this->_table(), $data);
+            
             $this->_callbacks('after_create', array($data, $this->db->insert_id()));
             
             return $this->db->insert_id();
@@ -194,7 +169,7 @@ class MY_Model extends CI_Model {
      *
      * @param integer $id
      * @param array $data
-     * @return int
+     * @return integer
      */
     public function update($primary_value, $data, $skip_validation = FALSE) {
         $valid = TRUE;
@@ -206,9 +181,9 @@ class MY_Model extends CI_Model {
         }
         
         if ($valid) {
-            $data = array_intersect_key($data, array_flip($this->fields));
+            $data = array_intersect_key($data, array_flip($this->_fields()));
             
-            $result = $this->db->where($this->primary_key, $primary_value)->set($data)->update($this->table);
+            $result = $this->db->where($this->primary_key, $primary_value)->set($data)->update($this->_table());
             
             $this->_callbacks('after_update', array($data, $primary_value, $result));
             
@@ -231,7 +206,7 @@ class MY_Model extends CI_Model {
         
         $this->_callbacks('before_delete', array($where));
         
-        $result = $this->db->delete($this->table);
+        $result = $this->db->delete($this->_table());
         
         $this->_callbacks('after_delete', array($where, $result));
         
@@ -249,7 +224,7 @@ class MY_Model extends CI_Model {
         $where = & func_get_args();
         $this->_set_where($where);
         
-        return $this->db->count_all_results($this->table);
+        return $this->db->count_all_results($this->_table());
     }
     
     /**
@@ -258,14 +233,14 @@ class MY_Model extends CI_Model {
      * @return integer
      */
     public function count_all() {
-        return $this->db->count_all($this->table);
+        return $this->db->count_all($this->_table());
     }
     
     /**
      * An easier limit function
      * 
-     * @param int $limit
-     * @param int $offset
+     * @param integer $limit
+     * @param integer $offset
      */
     public function limit($limit = NULL, $offset = NULL) {
         if (is_numeric($limit) && is_numeric($offset)) {
@@ -282,7 +257,7 @@ class MY_Model extends CI_Model {
      * @return array $fields
      */
     public function list_fields() {
-        return $this->db->list_fields($this->table);
+        return $this->db->list_fields($this->_table());
     }
     
     /**
@@ -291,7 +266,7 @@ class MY_Model extends CI_Model {
      *
      * @param string $key
      * @param string $value
-     * @return arrat $options
+     * @return array $options
      */
     public function dropdown() {
         $args = & func_get_args();
@@ -305,7 +280,7 @@ class MY_Model extends CI_Model {
         
         $this->_callbacks('before_get', array($key, $value));
         
-        $result = $this->db->select(array($key, $value))->get($this->table)->result_array();
+        $result = $this->db->select(array($key, $value))->get($this->_table())->result_array();
         
         $options = array();
         foreach ($result as $row) {
@@ -380,7 +355,33 @@ class MY_Model extends CI_Model {
                 $this->db->where($params[0]);
             }
         } elseif (count($params) == 2) {
-            $this->db->where($params[0], $params[1]);
+            if (is_array($params[1])) {
+                $this->db->where_in($params[0], $params[1]);
+            } else {
+                $this->db->where($params[0], $params[1]);
+            }
         }
+    }
+    
+    /**
+     * Return or fetch the database fields
+     */
+    private function _fields() {
+        if ($this->table && count($this->fields) == 0) {
+            $this->fields = $this->db->list_fields($this->table);
+        }
+        return $this->fields;
+    }
+    
+    /**
+     * Return or guess the database table
+     */
+    private function _table() {
+        if ($this->table == NULL) {
+            $this->load->helper('inflector');
+            $class = preg_replace('#((_m|_model)$|$(m_))?#', '', strtolower(get_class($this)));
+            $this->table = plural(strtolower($class));
+        }
+        return $this->table;
     }
 }

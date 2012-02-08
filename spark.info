@@ -8,7 +8,7 @@ name: my-model
 # This is the current version of this spark. All sparks should be in
 #  x.x.x format. Validation will fail otherwise. This is the version
 #  that will appear on the website.
-version: 0.2.2
+version: 0.3.0
 
 # This is the version of CodeIgniter this spark is compatible up to. It should
 #  be in x.x.x format
@@ -23,4 +23,4 @@ compatibility: 2.1.0
 #  spark-2: 1.0.0
 
 # These are tags to associate your spark with
-tags: ["model", "extension"]
+tags: ["model", "extension", "crud"]
