@@ -367,8 +367,8 @@ class MY_Model extends CI_Model {
      * Return or fetch the database fields
      */
     private function _fields() {
-        if ($this->table && count($this->fields) == 0) {
-            $this->fields = $this->db->list_fields($this->table);
+        if ($this->_table() && count($this->fields) == 0) {
+            $this->fields = $this->db->list_fields($this->_table());
         }
         return $this->fields;
     }
