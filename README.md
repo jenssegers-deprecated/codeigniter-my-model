@@ -91,4 +91,4 @@ You can bypass the validation by calling `skip_validation()` before an insert or
 Contributors
 ------------
 
-This model is based on Jamie Rumbelow's base model that was based on Phil Sturgeon's model.
+This model is based on Jamie Rumbelow's base model: https://github.com/jamierumbelow/codeigniter-base-model

@@ -2,10 +2,7 @@
 /**
  * @name		CodeIgniter Base Model
  * @author		Jens Segers
- * @modified	Jamie Rumbelow <http://jamierumbelow.net>
- * @modified	Phil Sturgeon <http://philsturgeon.co.uk>
- * @modified	Dan Horrigan <http://dhorrigan.com>
- * @modified	Adam Jackett <http://darkhousemedia.com>
+ * @contributor	Jamie Rumbelow <http://jamierumbelow.net>
  * @link		http://www.jenssegers.be
  * @license		MIT License Copyright (c) 2011 Jens Segers
  * 
@@ -47,6 +44,7 @@ class MY_Model extends CI_Model {
     
     /*
      * The database table fields, used for filtering data arrays before inserting and updating
+	 * If not set, an additional query will be made to fetch these fields
      */
     protected $fields = array();
     
@@ -292,7 +290,7 @@ class MY_Model extends CI_Model {
     }
     
     /**
-     * Skip the insert validation
+     * Skip the insert validation for future calls
      */
     public function skip_validation($bool = TRUE) {
         $this->skip_validation = $bool;
@@ -345,7 +343,11 @@ class MY_Model extends CI_Model {
     }
     
     /**
-     * Sets WHERE depending on the number of parameters
+     * Sets WHERE depending on the number of parameters, has 4 modes:
+	 * 1. ($id) primary key value mode
+	 * 2. (array("name"=>$name)) associative array mode
+	 * 3. ("name", $name) custom key/value mode
+	 * 4. ("id", array(1, 2, 3)) where in mode
      */
     private function _set_where($params) {
         if (count($params) == 1) {
@@ -367,7 +369,7 @@ class MY_Model extends CI_Model {
      * Return or fetch the database fields
      */
     private function _fields() {
-        if ($this->_table() && count($this->fields) == 0) {
+        if ($this->_table() && empty($this->fields)) {
             $this->fields = $this->db->list_fields($this->_table());
         }
         return $this->fields;
