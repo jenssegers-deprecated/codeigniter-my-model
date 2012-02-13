@@ -61,8 +61,8 @@ Callbacks are functions that are activated on specific occasions that allows you
  - $after_get
  - $before_delete
  - $after_delete
- 
- Example usage, add a timestamp whenever a book is created:
+
+Example usage, add a timestamp whenever a book is created:
  
 	class Book_model extends MY_Model {
 		public $before_create = array('timestamps');
