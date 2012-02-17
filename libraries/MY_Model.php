@@ -61,7 +61,8 @@ class MY_Model extends CI_Model {
     protected $after_delete = array();
     
     /*
-     * Database result mode, choose between object or array
+     * Database result mode, choose between object and array
+     * Depending on this value result() or result_array() will be used internally
      */
     protected $result_mode = 'array';
     
