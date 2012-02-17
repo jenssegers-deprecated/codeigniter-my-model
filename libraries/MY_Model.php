@@ -61,6 +61,11 @@ class MY_Model extends CI_Model {
     protected $after_delete = array();
     
     /*
+     * Database result mode, choose between object or array
+     */
+    protected $result_mode = 'array';
+    
+    /*
      * Validation, should contain validation arrays like the form validation
      */
     protected $validate = array();
@@ -96,7 +101,13 @@ class MY_Model extends CI_Model {
         $this->_set_where($where);
         
         $this->_callbacks('before_get', array($where));
-        $row = $this->db->get($this->_table())->row_array();
+        
+        if ($this->result_mode == 'object') {
+            $row = $this->db->get($this->_table())->row();
+        } else {
+            $row = $this->db->get($this->_table())->row_array();
+        }
+        
         $row = $this->_callbacks('after_get', array($row));
         
         return $row;
@@ -112,7 +123,12 @@ class MY_Model extends CI_Model {
         $this->_set_where($where);
         
         $this->_callbacks('before_get', array($where));
-        $result = $this->db->get($this->_table())->result_array();
+        
+        if ($this->result_mode == 'object') {
+            $result = $this->db->get($this->_table())->result();
+        } else {
+            $result = $this->db->get($this->_table())->result_array();
+        }
         
         foreach ($result as &$row) {
             $row = $this->_callbacks('after_get', array($row));
@@ -278,12 +294,22 @@ class MY_Model extends CI_Model {
         
         $this->_callbacks('before_get', array($key, $value));
         
-        $result = $this->db->select(array($key, $value))->get($this->_table())->result_array();
-        
-        $options = array();
-        foreach ($result as $row) {
-            $row = $this->_callbacks('after_get', array($row));
-            $options[$row->{$key}] = $row->{$value};
+        if ($this->result_mode == 'object') {
+            $result = $this->db->select(array($key, $value))->get($this->_table())->result();
+            
+            $options = array();
+            foreach ($result as $row) {
+                $row = $this->_callbacks('after_get', array($row));
+                $options[$row->{$key}] = $row->{$value};
+            }
+        } else {
+            $result = $this->db->select(array($key, $value))->get($this->_table())->result_array();
+            
+            $options = array();
+            foreach ($result as $row) {
+                $row = $this->_callbacks('after_get', array($row));
+                $options[$row[$key]] = $row[$value];
+            }
         }
         
         return $options;
@@ -344,10 +370,10 @@ class MY_Model extends CI_Model {
     
     /**
      * Sets WHERE depending on the number of parameters, has 4 modes:
-	 * 1. ($id) primary key value mode
-	 * 2. (array("name"=>$name)) associative array mode
-	 * 3. ("name", $name) custom key/value mode
-	 * 4. ("id", array(1, 2, 3)) where in mode
+     * 1. ($id) primary key value mode
+     * 2. (array("name"=>$name)) associative array mode
+     * 3. ("name", $name) custom key/value mode
+     * 4. ("id", array(1, 2, 3)) where in mode
      */
     private function _set_where($params) {
         if (count($params) == 1) {
