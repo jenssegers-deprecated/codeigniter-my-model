@@ -30,6 +30,9 @@
 if (!defined("BASEPATH"))
     exit("No direct script access allowed");
 
+if (!class_exists('CI_Model'))
+    require_once (BASEPATH . 'core/Model.php');
+
 class MY_Model extends CI_Model {
     
     /*

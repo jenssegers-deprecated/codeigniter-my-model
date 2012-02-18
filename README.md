@@ -6,7 +6,7 @@ This model extension provides easy database access function for your models. It 
 Installation
 ------------
 
-Place MY_Model.php into the application/core folder. Make sure your models extend MY_Model and you are ready to go!
+Place MY_Model.php into the application/core folder (or use spark). Make sure your models extend MY_Model and you are ready to go!
 
 Usage
 -----
