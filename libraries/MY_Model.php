@@ -4,7 +4,7 @@
  * @author		Jens Segers
  * @contributor	Jamie Rumbelow <http://jamierumbelow.net>
  * @link		http://www.jenssegers.be
- * @license		MIT License Copyright (c) 2011 Jens Segers
+ * @license		MIT License Copyright (c) 2012 Jens Segers
  * 
  * This model is based on Jamie Rumbelow's model with some personal modifications
  * 

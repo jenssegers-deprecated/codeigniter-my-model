@@ -13,14 +13,14 @@ Usage
 
 Create a new model class with an appropriate name, that extends MY_Model. You are advised to fill in the following attributes:
 
-	class Book_model extends MY_Model {
-	
-		protected $table = "books";
-		protected $primary_key = "id";
-		protected $fields = array("id", "author", "title", "published", "created_at");
-	
-	}
-	
+    class Book_model extends MY_Model {
+    
+        protected $table = "books";
+        protected $primary_key = "id";
+        protected $fields = array("id", "author", "title", "published", "created_at");
+    
+    }
+    
  - **$table**: the name of the database table, if not set it will try to guess the table from the model's name: *Book*_model -> *books*
  - **$primary_key**: the name of the primary key of your database, set to 'id' by default
  - **$fields**: you table's fields, if not set 1 extra query will be performed to get these automatically. These are used to filter arrays before inserting and updating
@@ -46,7 +46,7 @@ Some active record methods are also available, these can be used without the dat
  
 All other active records are also available, these are immediately passed to the database class. This allows you to use chaining:
 
-	$books = $this->book_model->order_by("author", "desc")->limit(50, 0)->get_many();
+    $books = $this->book_model->order_by("author", "desc")->limit(50, 0)->get_many();
 
 Callbacks
 ---------
@@ -64,26 +64,26 @@ Callbacks are functions that are activated on specific occasions that allows you
 
 Example usage, add a timestamp whenever a book is created:
  
-	class Book_model extends MY_Model {
-		public $before_create = array('timestamps');
+    class Book_model extends MY_Model {
+        public $before_create = array('timestamps');
 
-		function timestamps($book) {
-			$book['created_at'] = date('Y-m-d H:i:s');
-			return $book;
-		}
-	}
-	
+        function timestamps($book) {
+            $book['created_at'] = date('Y-m-d H:i:s');
+            return $book;
+        }
+    }
+    
 Validation
 ----------
 
 This models provides a wrapper for CodeIgniter's form validation, it will check all declared rules before inserting or updating. To add rules, add them to the `$this->validate` array, like this:
 
-	$this->validate[] = array(
-							 'field'   => 'username',
-							 'label'   => 'Username',
-							 'rules'   => 'required'
-						  );
-						  
+    $this->validate[] = array(
+                             'field'   => 'username',
+                             'label'   => 'Username',
+                             'rules'   => 'required'
+                          );
+                          
 You can find more information about these rules here: http://codeigniter.com/user_guide/libraries/form_validation.html
 
 You can bypass the validation by calling `skip_validation()` before an insert or update.
