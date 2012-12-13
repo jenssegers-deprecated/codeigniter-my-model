@@ -381,16 +381,16 @@ class MY_Model extends CI_Model {
      */
     private function _set_where($params) {
         if (count($params) == 1) {
-            if (!is_array($params[0] && !strstr($params[0], "'"))) {
-                $this->db->where($this->primary_key, $params[0]);
+            if (!is_array($params[0]) && !strstr($params[0], "'")) {
+                $this->db->where($this->primary_key, $params[0]); // 1.
             } else {
-                $this->db->where($params[0]);
+                $this->db->where($params[0]); // 2.
             }
         } elseif (count($params) == 2) {
             if (is_array($params[1])) {
-                $this->db->where_in($params[0], $params[1]);
+                $this->db->where_in($params[0], $params[1]); // 4.
             } else {
-                $this->db->where($params[0], $params[1]);
+                $this->db->where($params[0], $params[1]); // 3.
             }
         }
     }
