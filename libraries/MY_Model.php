@@ -102,9 +102,9 @@ class MY_Model extends CI_Model {
      */
     public function get() {
         $where = & func_get_args();
+
+        $where = $this->_callbacks('before_get', array($where));
         $this->_set_where($where);
-        
-        $this->_callbacks('before_get', array($where));
         
         if ($this->result_mode == 'object') {
             $row = $this->db->get($this->_table())->row();
@@ -124,9 +124,9 @@ class MY_Model extends CI_Model {
      */
     public function get_all() {
         $where = & func_get_args();
-        $this->_set_where($where);
         
-        $this->_callbacks('before_get', array($where));
+        $where = $this->_callbacks('before_get', array($where));
+        $this->_set_where($where);
         
         if ($this->result_mode == 'object') {
             $result = $this->db->get($this->_table())->result();
@@ -219,10 +219,10 @@ class MY_Model extends CI_Model {
      * @return bool
      */
     public function delete() {
-        $where = & func_get_args();
-        $this->_set_where($where);
+        $where = & func_get_args();-
         
-        $this->_callbacks('before_delete', array($where));
+        $where = $this->_callbacks('before_delete', array($where));
+        $this->_set_where($where);
         
         $result = $this->db->delete($this->_table());
         
