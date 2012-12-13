@@ -219,7 +219,7 @@ class MY_Model extends CI_Model {
      * @return bool
      */
     public function delete() {
-        $where = & func_get_args();-
+        $where = & func_get_args();
         
         $where = $this->_callbacks('before_delete', array($where));
         $this->_set_where($where);
